@@ -1,9 +1,14 @@
+import os
+
 from scapy.layers.l2 import ARP, Ether
 from scapy.sendrecv import srp
 import time
 
 
-def find_ip_by_mac(target_mac, subnet="192.168.1.0/24", attempts=5, timeout=4):
+def find_ip_by_mac(target_mac, subnet=None, attempts=5, timeout=4):
+    if subnet is None:
+        subnet = os.getenv("SUBNET", "192.168.1.0/24")
+
     arp = ARP(pdst=subnet)
     ether = Ether(dst="ff:ff:ff:ff:ff:ff")
     packet = ether / arp

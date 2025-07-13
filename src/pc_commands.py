@@ -1,5 +1,6 @@
 import subprocess
 import os
+import time
 
 from plug_init import plug_init
 from ip_finder import find_ip_by_mac
@@ -13,11 +14,16 @@ def turn_on():
     plug.turnOn()
 
 def turn_off():
+    host = find_ip_by_mac(os.getenv('PC_MAC'))
+    if host is not None:
+        # soft shutdown
+        subprocess.run(["ssh", f"{os.getenv("SSH_USERNAME")}@{host}", "sudo shutdown -h now"], check=True)
+        time.sleep(45)
+
     plug.turnOff()
 
 def is_online(count = 4, timeout = 2):
     host = find_ip_by_mac(os.getenv('PC_MAC'))
-
     if host is not None:
 
         # Windows systems
