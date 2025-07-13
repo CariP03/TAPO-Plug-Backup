@@ -17,7 +17,8 @@ if __name__ == '__main__':
         time.sleep(90)  # waiting for PC startup
 
     # backup
-    execute_backup()
+    execute_backup("cloud")
+    execute_backup("images")
 
     # turn off the PC
     if not was_online:
