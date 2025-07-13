@@ -9,6 +9,7 @@ load_dotenv()  # load variables
 
 if __name__ == '__main__':
     # check PC status and turn it on if offline
+    pc.init_pc()
     was_online = True
     if not pc.is_online():
         was_online = False
