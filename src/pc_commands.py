@@ -1,11 +1,9 @@
 import subprocess
-from dotenv import load_dotenv
 import os
 
 from plug_init import plug_init
 from ip_finder import find_ip_by_mac
 
-load_dotenv()  # load variables
 plug = plug_init()
 
 

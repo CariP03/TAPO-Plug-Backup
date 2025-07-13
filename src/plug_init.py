@@ -1,10 +1,7 @@
 from PyP100 import PyP100
-from dotenv import load_dotenv
 import os
 
 from ip_finder import find_ip_by_mac
-
-load_dotenv()  # load variables
 
 
 def plug_init():

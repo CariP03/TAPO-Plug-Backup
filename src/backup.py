@@ -1,11 +1,9 @@
 import subprocess
-from dotenv import load_dotenv
 import os
 from pathlib import Path
 
 from ip_finder import find_ip_by_mac
 
-load_dotenv()  # load variables
 
 def execute_backup():
     # build BORG_REPO dynamically
@@ -17,6 +15,6 @@ def execute_backup():
 
     # execute backup
     script_path = Path(__file__).resolve().parent / "backup.sh"
-    subprocess.run([script_path], check=True)
+    subprocess.run([script_path], check=True, env=os.environ)
 
 
