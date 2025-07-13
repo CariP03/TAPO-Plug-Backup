@@ -23,10 +23,10 @@ def is_online(count = 4, timeout = 2):
     if host is not None:
 
         # Windows systems
-        cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), host]
+        # cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), host]
 
         # Linux systems
-        # cmd = ["ping", "-c", str(count), "-W", str(timeout), host]
+        cmd = ["ping", "-c", str(count), "-W", str(timeout), host]
 
         result = subprocess.run(cmd,
                                 stdout=subprocess.DEVNULL,
