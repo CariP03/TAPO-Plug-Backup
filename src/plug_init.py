@@ -4,9 +4,10 @@ import os
 
 from ip_finder import find_ip_by_mac
 
-def plug_init():
-    load_dotenv() # load variables
+load_dotenv()  # load variables
 
+
+def plug_init():
     # find plug ip address
     plug_ip = find_ip_by_mac(os.getenv('PLUG_MAC'))
 
