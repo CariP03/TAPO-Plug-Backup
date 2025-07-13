@@ -22,6 +22,7 @@ if __name__ == '__main__':
             was_online = False
             host.turn_on()
 
+            logger.info("Waiting for host to come online...")
             time.sleep(90)  # waiting for host startup
 
         # backup

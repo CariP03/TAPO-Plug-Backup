@@ -2,7 +2,7 @@ import subprocess
 import os
 from pathlib import Path, PurePosixPath
 
-from ip_finder import find_ip_by_mac
+from ip_finder import get_host_ip
 from logger import logger, log_subprocess
 
 # raised when unable to proceed with backup
@@ -13,7 +13,7 @@ class BackupError(Exception):
 def execute_backup(repo_name):
     logger.info(f"Executing backup for {repo_name}")
     # build BORG_REPO dynamically
-    host = find_ip_by_mac(os.getenv('REMOTE_HOST_MAC'))
+    host = get_host_ip()
     if host is not None:
         username = os.getenv('SSH_USERNAME')
         full_path = PurePosixPath(os.getenv('BORG_REPOS_PATH')) / repo_name

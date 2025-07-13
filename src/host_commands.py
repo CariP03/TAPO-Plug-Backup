@@ -3,7 +3,7 @@ import os
 import time
 
 from plug_init import plug_init, PlugInitError
-from ip_finder import find_ip_by_mac
+from ip_finder import get_host_ip
 from logger import logger
 
 
@@ -30,12 +30,13 @@ def turn_on():
 
 def turn_off():
     logger.info("Turning off remote host")
-    host = find_ip_by_mac(os.getenv('REMOTE_HOST_MAC'))
+    host = get_host_ip()
     if host is not None:
         # soft shutdown
         logger.info("Attempting graceful shutdown via SSH")
         try:
             subprocess.run(["ssh", f"{os.getenv('SSH_USERNAME')}@{host}", "sudo shutdown -h now"], check=True)
+            logger.info("Waiting for host to shutdown...")
             time.sleep(45)
             logger.info("Remote host turned off successfully")
         except subprocess.CalledProcessError as e:
@@ -53,14 +54,14 @@ def turn_off():
 
 def is_online(count=4, timeout=2):
     logger.info("Checking if remote host is online")
-    host = find_ip_by_mac(os.getenv('REMOTE_HOST_MAC'))
+    host = get_host_ip()
     if host is not None:
 
         # Windows systems
-        cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), host]
+        # cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), host]
 
         # Linux systems
-        # cmd = ["ping", "-c", str(count), "-W", str(timeout), host]
+        cmd = ["ping", "-c", str(count), "-W", str(timeout), host]
 
         try:
             result = subprocess.run(cmd,
