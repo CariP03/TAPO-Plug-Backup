@@ -1,26 +1,47 @@
+import sys
 import time
 from dotenv import load_dotenv
 
-import pc_commands as pc
-from backup import execute_backup
+import host_commands as host
+from backup import execute_backup, BackupError
+from logger import logger, start_logging
+from plug_init import PlugInitError
 
 load_dotenv()  # load variables
 
 
 if __name__ == '__main__':
-    # check PC status and turn it on if offline
-    pc.init_pc()
+    start_logging()
+
     was_online = True
-    if not pc.is_online():
-        was_online = False
-        pc.turn_on()
+    try:
+        # check host status and turn it on if offline
+        host.init_host()
 
-        time.sleep(90)  # waiting for PC startup
+        if not host.is_online():
+            was_online = False
+            host.turn_on()
 
-    # backup
-    execute_backup("cloud")
-    execute_backup("images")
+            time.sleep(90)  # waiting for host startup
 
-    # turn off the PC
-    if not was_online:
-        pc.turn_off()
+        # backup
+        execute_backup("cloud")
+        execute_backup("images")
+
+    except BackupError as e:
+        logger.critical("Aborting: backup process failed", exc_info=True)
+        sys.exit(1)
+
+    except PlugInitError as e:
+        logger.critical("Startup failed: plug not initialized", exc_info=True)
+        sys.exit(1)
+
+    except Exception as e:
+        logger.critical("Unexpected fatal error", exc_info=True)
+        sys.exit(1)
+
+    finally:
+        # turn off the remote host
+        if not was_online:
+            host.turn_off()
+

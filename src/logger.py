@@ -1,0 +1,57 @@
+import logging
+import os
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+from threading import Thread
+
+# create logger object
+logger = logging.getLogger("backup")
+logger.setLevel(logging.DEBUG)
+
+# build log path
+ROOT_DIR = Path(__file__).resolve().parent.parent
+log_dir = ROOT_DIR / os.getenv('LOG_DIR', "logs")
+log_dir.mkdir(parents=True, exist_ok=True)
+
+LOG_FILE = log_dir / "backup.log"
+
+# configure file handler
+fh = RotatingFileHandler(LOG_FILE, maxBytes=10*1024*1024, backupCount=7)
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
+fh.setFormatter(formatter)
+logger.addHandler(fh)
+
+# create a log for each run
+def start_logging():
+    if LOG_FILE.exists() and LOG_FILE.stat().st_size > 0:
+        fh.doRollover()
+
+def _stream_reader(pipe, log_fn, prefix, repo_name):
+    with pipe:
+        for line in pipe:
+            log_fn(f"[{repo_name} {prefix}] {line.rstrip()}")
+
+def log_subprocess(proc, repo_name):
+    t_out = Thread(
+        target=_stream_reader,
+        args=(proc.stdout, logger.info, "STDOUT", repo_name),
+        daemon=True
+    )
+    t_err = Thread(
+        target=_stream_reader,
+        args=(proc.stderr, logger.warning, "STDERR", repo_name),
+        daemon=True
+    )
+    t_out.start()
+    t_err.start()
+
+    # wait for process end
+    return_code = proc.wait()
+
+    # consume buffer
+    t_out.join()
+    t_err.join()
+
+    return return_code
+

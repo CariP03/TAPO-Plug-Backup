@@ -1,11 +1,12 @@
 import os
-
 from scapy.layers.l2 import ARP, Ether
 from scapy.sendrecv import srp
 import time
 
+from logger import logger
 
-def find_ip_by_mac(target_mac, subnet=None, attempts=5, timeout=4):
+
+def find_ip_by_mac(target_mac, subnet=None, attempts=6, timeout=4):
     if subnet is None:
         subnet = os.getenv("SUBNET", "192.168.1.0/24")
 
@@ -13,11 +14,19 @@ def find_ip_by_mac(target_mac, subnet=None, attempts=5, timeout=4):
     ether = Ether(dst="ff:ff:ff:ff:ff:ff")
     packet = ether / arp
 
-    for i in range(attempts):
-        result = srp(packet, timeout=timeout, verbose=False)[0]
-        for sent, received in result:
-            if received.hwsrc.lower() == target_mac.lower():
-                return received.psrc
-        time.sleep(1)
+    try:
+        for i in range(attempts):
+            logger.debug(f"Attempt {i + 1}/{attempts}: Scanning subnet {subnet} for MAC {target_mac}")
+            result = srp(packet, timeout=timeout, verbose=False)[0]
+            for sent, received in result:
+                if received.hwsrc.lower() == target_mac.lower():
+                    logger.info(f"Found IP: {received.psrc} for MAC: {target_mac}")
+                    return received.psrc
+            time.sleep(1)
 
-    return None
+        logger.warning(f"Failed to find IP for MAC {target_mac}")
+        return None
+
+    except Exception as e:
+        logger.error(f"Error while searching IP for MAC {target_mac}: {str(e)}", exc_info=True)
+        return None
