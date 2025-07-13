@@ -1,6 +1,6 @@
 import logging
 import os
-from logging.handlers import RotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 from threading import Thread
 
@@ -16,7 +16,7 @@ log_dir.mkdir(parents=True, exist_ok=True)
 LOG_FILE = log_dir / "backup.log"
 
 # configure file handler
-fh = RotatingFileHandler(LOG_FILE, maxBytes=10*1024*1024, backupCount=7)
+fh = TimedRotatingFileHandler(LOG_FILE, when='D', backupCount=7)
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
 fh.setFormatter(formatter)

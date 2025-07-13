@@ -5,6 +5,8 @@ import time
 
 from logger import logger
 
+_cached_host = None
+
 
 def find_ip_by_mac(target_mac, subnet=None, attempts=6, timeout=4):
     if subnet is None:
@@ -31,7 +33,6 @@ def find_ip_by_mac(target_mac, subnet=None, attempts=6, timeout=4):
         logger.error(f"Error while searching IP for MAC {target_mac}: {str(e)}", exc_info=True)
         return None
 
-_cached_host = None
 
 def get_host_ip():
     global _cached_host

@@ -11,8 +11,6 @@ load_dotenv()  # load variables
 
 
 if __name__ == '__main__':
-    start_logging()
-
     was_online = True
     try:
         # check host status and turn it on if offline
