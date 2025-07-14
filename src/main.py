@@ -26,7 +26,8 @@ if __name__ == '__main__':
             time.sleep(90)  # waiting for host startup
 
         # cycle through scripts directory to execute all backups
-        script_dir = Path(os.getenv("SCRIPTS_PATH", "./scripts"))
+        BASE_DIR = Path(__file__).resolve().parent  # /app/src
+        script_dir = BASE_DIR.parent / "scripts"  # /app/scripts
         if not script_dir.is_dir():
             raise FileNotFoundError("Script directory not found")
 

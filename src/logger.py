@@ -8,7 +8,8 @@ from threading import Thread
 logger = logging.getLogger("backup")
 logger.setLevel(logging.DEBUG)
 
-log_dir = Path(os.getenv("LOGS_PATH", "./logs"))
+BASE_DIR = Path(__file__).resolve().parent  # /app/src
+log_dir = BASE_DIR.parent / "logs"  # /app/logs
 LOG_FILE = log_dir / "backup.log"
 log_dir.mkdir(parents=True, exist_ok=True)
 

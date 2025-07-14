@@ -1,0 +1,10 @@
+services:
+  tapo-backup:
+    image: tapobackup:1.0
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./scripts:/app/scripts
+    network_mode: host
+    restart: on-failure
