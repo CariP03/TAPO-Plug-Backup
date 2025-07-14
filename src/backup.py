@@ -10,22 +10,24 @@ class BackupError(Exception):
     pass
 
 
-def execute_backup(repo_name):
+def execute_backup(backup_script):
+    repo_name = Path(backup_script).stem
     logger.info(f"Executing backup for {repo_name}")
+
     # build BORG_REPO dynamically
     host = get_host_ip()
     if host is not None:
+        # build environment variable
         username = os.getenv('SSH_USERNAME')
         full_path = PurePosixPath(os.getenv('BORG_REPOS_PATH')) / repo_name
         os.environ['BORG_REPO'] = f"ssh://{username}@{host}:{full_path}"
-
         logger.debug(f"BORG_REPO set to {os.environ['BORG_REPO']}")
 
+
         # execute backup
-        script_path = PurePosixPath(Path(__file__).resolve().parent) / f"{repo_name}.sh"
         try:
             proc = subprocess.Popen(
-                [str(script_path)],
+                [str(backup_script)],
                 env=os.environ,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,

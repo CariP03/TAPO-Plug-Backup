@@ -8,12 +8,9 @@ from threading import Thread
 logger = logging.getLogger("backup")
 logger.setLevel(logging.DEBUG)
 
-# build log path
-ROOT_DIR = Path(__file__).resolve().parent.parent
-log_dir = ROOT_DIR / os.getenv('LOG_DIR', "logs")
-log_dir.mkdir(parents=True, exist_ok=True)
-
+log_dir = Path(os.getenv("LOGS_PATH", "./logs"))
 LOG_FILE = log_dir / "backup.log"
+log_dir.mkdir(parents=True, exist_ok=True)
 
 # configure file handler
 fh = TimedRotatingFileHandler(LOG_FILE, when='D', backupCount=7)
@@ -22,15 +19,12 @@ formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
-# create a log for each run
-def start_logging():
-    if LOG_FILE.exists() and LOG_FILE.stat().st_size > 0:
-        fh.doRollover()
 
 def _stream_reader(pipe, log_fn, prefix, repo_name):
     with pipe:
         for line in pipe:
             log_fn(f"[{repo_name} {prefix}] {line.rstrip()}")
+
 
 def log_subprocess(proc, repo_name):
     t_out = Thread(
@@ -54,4 +48,3 @@ def log_subprocess(proc, repo_name):
     t_err.join()
 
     return return_code
-
