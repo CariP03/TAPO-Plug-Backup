@@ -5,6 +5,7 @@ from pathlib import Path, PurePosixPath
 from ip_finder import get_host_ip
 from logger import logger, log_subprocess
 
+
 # raised when unable to proceed with backup
 class BackupError(Exception):
     pass
@@ -22,7 +23,6 @@ def execute_backup(backup_script):
         full_path = PurePosixPath(os.getenv('BORG_REPOS_PATH')) / repo_name
         os.environ['BORG_REPO'] = f"ssh://{username}@{host}:{full_path}"
         logger.debug(f"BORG_REPO set to {os.environ['BORG_REPO']}")
-
 
         # execute backup
         try:
@@ -52,4 +52,3 @@ def execute_backup(backup_script):
     else:
         logger.critical(f"Host not found. Failed to backup repo {repo_name}. Aborting all backups")
         raise BackupError(f"Host not found. Failed to backup repo {repo_name}. Aborting all backups")
-
