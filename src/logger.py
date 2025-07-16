@@ -26,7 +26,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-def _stream_reader(pipe, log_fn, prefix, repo_name):
+def __stream_reader(pipe, log_fn, prefix, repo_name):
     with pipe:
         for line in pipe:
             log_fn(f"[{repo_name} {prefix}] {line.rstrip()}")
@@ -34,12 +34,12 @@ def _stream_reader(pipe, log_fn, prefix, repo_name):
 
 def log_subprocess(proc, repo_name):
     t_out = Thread(
-        target=_stream_reader,
+        target=__stream_reader,
         args=(proc.stdout, logger.info, "STDOUT", repo_name),
         daemon=True
     )
     t_err = Thread(
-        target=_stream_reader,
+        target=__stream_reader,
         args=(proc.stderr, logger.warning, "STDERR", repo_name),
         daemon=True
     )
