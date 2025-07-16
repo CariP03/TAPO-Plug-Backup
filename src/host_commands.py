@@ -38,7 +38,7 @@ def start_host():
         __turn_on()
 
         logger.info("Waiting for host to come online...")
-        time.sleep(90)  # waiting for host startup
+        time.sleep(int(os.getenv('STARTUP_TIME')))  # waiting for host startup
 
     return was_online
 
@@ -49,7 +49,7 @@ def __shutdown_host(host):
     try:
         subprocess.run(["ssh", f"{os.getenv('SSH_USERNAME')}@{host}", "sudo shutdown -h now"], check=True)
         logger.info("Waiting for host to shutdown...")
-        time.sleep(45)
+        time.sleep(int(os.getenv('SHUTDOWN_TIME')))
         logger.info("Remote host turned off successfully")
     except subprocess.CalledProcessError as e:
         logger.error(
