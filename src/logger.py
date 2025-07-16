@@ -1,5 +1,4 @@
 import logging
-import os
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 from threading import Thread
@@ -19,6 +18,12 @@ fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
 fh.setFormatter(formatter)
 logger.addHandler(fh)
+
+# configure console logger
+sh = logging.StreamHandler()
+sh.setLevel(logging.DEBUG)
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 
 def _stream_reader(pipe, log_fn, prefix, repo_name):
