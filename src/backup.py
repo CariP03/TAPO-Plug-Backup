@@ -18,7 +18,7 @@ def __build_repo_env(repo_name):
         # build environment variable
         username = os.getenv('SSH_USERNAME')
         full_path = PurePosixPath(os.getenv('BORG_REPOS_PATH')) / repo_name
-        os.environ['BORG_REPO'] = f"ssh://{username}@{host}:{full_path}"
+        os.environ['BORG_REPO'] = f"ssh://{username}@{host}{full_path}"
 
         logger.debug(f"BORG_REPO set to {os.environ['BORG_REPO']}")
 

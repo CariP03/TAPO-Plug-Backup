@@ -6,5 +6,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./scripts:/app/scripts
+      - ~/.ssh/id_rsa:/root/.ssh/id_ed25519:ro
+      - ~/.ssh/known_hosts:/root/.ssh/known_hosts:ro
     network_mode: host
     restart: on-failure
