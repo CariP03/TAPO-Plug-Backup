@@ -38,6 +38,8 @@ async def main():
         if not was_online:
             await host.turn_off()
 
+        # close connection with plug
+        await host.close_plug()
 
 if __name__ == '__main__':
     asyncio.run(main())

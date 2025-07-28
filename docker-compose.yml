@@ -1,12 +1,14 @@
 services:
   tapo-backup:
+    container_name: backup
     image: tapobackup
     env_file:
       - .env
     volumes:
       - ./logs:/app/logs
       - ./scripts:/app/scripts
-      - ~/.ssh/id_rsa:/root/.ssh/id_ed25519:ro
+      - ~/.ssh/id_ed25519:/root/.ssh/id_ed25519:ro
       - ~/.ssh/known_hosts:/root/.ssh/known_hosts:ro
+      - /directory_to_backup:/data_to_backup/directory_to_backup
     network_mode: host
-    restart: on-failure
+

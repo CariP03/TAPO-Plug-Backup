@@ -50,6 +50,36 @@ async def start_host():
     return was_online
 
 
+def is_online(count=4, timeout=2):
+    logger.info("Checking if remote host is online")
+    host = get_host_ip()
+    if host is not None:
+
+        # Windows systems
+        # cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), host]
+
+        # Linux systems
+        cmd = ["ping", "-c", str(count), "-W", str(timeout), host]
+
+        try:
+            result = subprocess.run(cmd,
+                                    check=True,
+                                    stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL)
+            logger.info("Remote host is online")
+            return True
+
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Ping failed: host is unreachable ({host})")
+            return False
+        except Exception as e:
+            logger.error(f"Unexpected error during ping: {e}", exc_info=True)
+            return False
+
+    logger.info("Remote host is offline (IP not found)")
+    return False
+
+
 def __shutdown_host(host):
     # soft shutdown
     logger.info("Attempting graceful shutdown via SSH")
@@ -84,31 +114,7 @@ async def turn_off():
         logger.error(f"Failed to turn off plug: {e}", exc_info=True)
 
 
-def is_online(count=4, timeout=2):
-    logger.info("Checking if remote host is online")
-    host = get_host_ip()
-    if host is not None:
-
-        # Windows systems
-        # cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), host]
-
-        # Linux systems
-        cmd = ["ping", "-c", str(count), "-W", str(timeout), host]
-
-        try:
-            result = subprocess.run(cmd,
-                                    check=True,
-                                    stdout=subprocess.DEVNULL,
-                                    stderr=subprocess.DEVNULL)
-            logger.info("Remote host is online")
-            return True
-
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"Ping failed: host is unreachable ({host})")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error during ping: {e}", exc_info=True)
-            return False
-
-    logger.info("Remote host is offline (IP not found)")
-    return False
+async def close_plug():
+    if plug is not None:
+        await plug.disconnect()
+        logger.info(f"Plug disconnected")
