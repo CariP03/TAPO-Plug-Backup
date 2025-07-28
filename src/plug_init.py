@@ -1,7 +1,6 @@
-from PyP100 import PyP100
 import os
+from kasa import Discover, Credentials
 
-from ip_finder import find_ip_by_mac
 from logger import logger
 
 
@@ -10,19 +9,27 @@ class PlugInitError(Exception):
     pass
 
 
-def plug_init():
+async def plug_init():
     logger.info(f"Initializing plug")
     try:
-        # find plug ip address
-        plug_ip = find_ip_by_mac(os.getenv('PLUG_MAC'))
-        if plug_ip is None:
-            raise PlugInitError("Could not find plug IP")
+        creds = Credentials(os.getenv("EMAIL"), os.getenv("PASSWORD"))
+        devices = await Discover.discover(credentials=creds)
 
-        # create plug object
-        plug = PyP100.P100(plug_ip, os.getenv("EMAIL"), os.getenv("PASSWORD"))
+        # find target device by MAC
+        for ip, device in devices.items():
+            await device.update()
+            if device.mac.lower() != os.getenv("PLUG_MAC").lower():
+                logger.debug(f"Skipping device with IP {ip}, MAC {device.mac} and alias {device.alias}")
+                continue
 
-        logger.info("Plug initialized successfully")
-        return plug
+            logger.info("Plug initialized successfully")
+            return device
+
+        raise PlugInitError(f"Device with MAC {os.getenv('PLUG_MAC')} not found")
+
+    except PlugInitError:
+        raise
+
     except Exception as e:
         logger.critical(f"Failed to create Plug instance: {str(e)}", exc_info=True)
         raise PlugInitError("Failed to create Plug instance") from e

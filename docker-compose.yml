@@ -1,6 +1,6 @@
 services:
   tapo-backup:
-    image: tapobackup:1.0
+    image: tapobackup
     env_file:
       - .env
     volumes:

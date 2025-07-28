@@ -1,3 +1,4 @@
+import asyncio
 import subprocess
 import os
 import time
@@ -9,36 +10,42 @@ from logger import logger
 plug = None
 
 
-def __init_host():
+async def __init_host():
     global plug
     try:
-        plug = plug_init()
+        plug = await plug_init()
     except PlugInitError as e:
         raise
 
 
-# function that turn on the pc by turning off the plug and then turning it on
-def __turn_on():
+# function that turn on the remote host by turning off the plug and then turning it on
+async def __turn_on():
     logger.info("Turning on remote host")
+    if plug is None:
+        logger.critical(f"Plug not initialized")
+        raise PlugInitError("Plug not initialized")
+
     try:
-        plug.turnOff()
-        plug.turnOn()
+        await plug.turn_off()
+        await plug.turn_on()
+        await plug.update()
+
     except Exception as e:
         logger.critical(f"Error turning on plug: {e}", exc_info=True)
         raise
 
 
 # check host status and turn it on if offline
-def start_host():
-    __init_host()
+async def start_host():
+    await __init_host()
 
     was_online = True
     if not is_online():
         was_online = False
-        __turn_on()
+        await __turn_on()
 
         logger.info("Waiting for host to come online...")
-        time.sleep(int(os.getenv('STARTUP_TIME')))  # waiting for host startup
+        await asyncio.sleep(int(os.getenv('STARTUP_TIME')))  # waiting for host startup
 
     return was_online
 
@@ -57,8 +64,12 @@ def __shutdown_host(host):
             exc_info=True)
 
 
-def turn_off():
+async def turn_off():
     logger.info("Turning off remote host")
+    if plug is None:
+        logger.critical(f"Plug not initialized")
+        raise PlugInitError("Plug not initialized")
+
     host = get_host_ip()
     if host is not None:
         __shutdown_host(host)
@@ -66,7 +77,8 @@ def turn_off():
         logger.warning(f"Failed to find host IP. Proceeding to turn off plug without graceful shutdown")
 
     try:
-        plug.turnOff()
+        await plug.turn_off()
+        await plug.update()
         logger.info("Plug turned off successfully")
     except Exception as e:
         logger.error(f"Failed to turn off plug: {e}", exc_info=True)

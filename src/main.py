@@ -3,16 +3,18 @@ from dotenv import load_dotenv
 load_dotenv()  # load variables
 
 import sys
+import asyncio
 
 import host_commands as host
 from backup import cycle_backups, BackupError
 from logger import logger
 from plug_init import PlugInitError
 
-if __name__ == '__main__':
-    was_online = True
+
+async def main():
+    was_online = None
     try:
-        was_online = host.start_host()
+        was_online = await host.start_host()
         cycle_backups()
 
     except BackupError as e:
@@ -34,4 +36,8 @@ if __name__ == '__main__':
     finally:
         # turn off the remote host
         if not was_online:
-            host.turn_off()
+            await host.turn_off()
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
