@@ -9,6 +9,7 @@ services:
       - ./scripts:/app/scripts
       - ~/.ssh/id_ed25519:/root/.ssh/id_ed25519:ro
       - ~/.ssh/known_hosts:/root/.ssh/known_hosts:ro
-      - /directory_to_backup:/data_to_backup/directory_to_backup
+      - /host_directory:/backup/host_directory:ro
+      - /host_directory:/backup/host_directory:ro
     network_mode: host
 
