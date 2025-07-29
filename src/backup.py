@@ -41,8 +41,10 @@ def __execute_backup_subprocess(backup_script, repo_name):
 
         if return_code == 0:
             logger.info(f"Backup for repo {repo_name} completed successfully")
+            return return_code
         elif return_code == 1:
             logger.warning(f"Backup for repo {repo_name} completed with warnings")
+            return return_code
         else:
             logger.critical(f"Backup for repo {repo_name} completed with errors. Aborting all backups")
             raise BackupError(f"Backup for repo {repo_name} completed with errors. Aborting all backups")
@@ -59,18 +61,27 @@ def __execute_backup(backup_script):
 
     try:
         __build_repo_env(repo_name)
-        __execute_backup_subprocess(backup_script, repo_name)
+        return __execute_backup_subprocess(backup_script, repo_name)
     except BackupError as e:
         raise e
 
 
 # cycle through scripts directory to execute all backups
 def cycle_backups():
-    BASE_DIR = Path(__file__).resolve().parent  # /app/src
-    script_dir = BASE_DIR.parent / "scripts"  # /app/scripts
+    base_dir = Path(__file__).resolve().parent  # /app/src
+    script_dir = base_dir.parent / "scripts"  # /app/scripts
     if not script_dir.is_dir():
         raise FileNotFoundError("Script directory not found")
 
+    overall_exit = 0
     for sh_file in script_dir.glob("*.sh"):
         logger.debug(f"Retrieved script {sh_file}")
-        __execute_backup(sh_file)
+        try:
+            code = __execute_backup(sh_file)  # 0, 1 or BackupError
+        except BackupError:
+            return 2
+
+        # keep the highest error code
+        overall_exit = max(overall_exit, code)
+
+    return overall_exit
