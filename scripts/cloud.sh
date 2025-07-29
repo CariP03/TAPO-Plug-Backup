@@ -21,6 +21,7 @@ borg create                         \
     --exclude-caches                \
     --exclude 'home/*/.cache/*'     \
     --exclude 'var/tmp/*'           \
+    --exclude '*.log'		    \
                                     \
     ::'{hostname}-{now}'            \
     /etc                            \
