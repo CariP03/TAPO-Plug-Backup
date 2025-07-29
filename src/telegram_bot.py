@@ -1,4 +1,5 @@
 from telegram import Bot
+from telegram.constants import ParseMode
 from telegram.error import TelegramError
 import os
 
@@ -7,11 +8,11 @@ from logger import logger
 
 async def send_backup_result(status: int):
     if status == 0:
-        text = "Backup completed successfully 🟢!"
+        text = "🟢 Backup completed *SUCCESSFULLY*!"
     elif status == 1:
-        text = "Backup completed with warnings 🟡! Check logs for more details."
+        text = "🟡 Backup completed with *WARNINGS*! Check logs for more details."
     else:
-        text = "Backup completed with errors 🔴! Check logs for more details."
+        text = "🔴 Backup completed with *ERRORS*! Check logs for more details."
 
     token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
@@ -23,7 +24,7 @@ async def send_backup_result(status: int):
         # send message
         try:
             async with bot:
-                await bot.send_message(chat_id=chat_id, text=text)
+                await bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.MARKDOWN)
         except TelegramError as e:
             logger.error("Failed to send message.", exc_info=e)
 
