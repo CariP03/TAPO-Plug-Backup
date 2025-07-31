@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, date
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 from threading import Thread
@@ -18,6 +19,14 @@ fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
 fh.setFormatter(formatter)
 logger.addHandler(fh)
+
+# force rotation for container
+if LOG_FILE.exists():
+    # last edit date
+    edit_time = datetime.fromtimestamp(LOG_FILE.stat().st_mtime).date()
+    today = date.today()
+    if edit_time < today:
+        fh.doRollover()
 
 # configure console logger
 sh = logging.StreamHandler()
