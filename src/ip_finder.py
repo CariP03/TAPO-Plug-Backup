@@ -37,5 +37,9 @@ def find_ip_by_mac(target_mac, subnet=None, attempts=6, timeout=4):
 def get_host_ip():
     global _cached_host
     if _cached_host is None:
-        _cached_host = find_ip_by_mac(os.getenv('REMOTE_HOST_MAC'))
+        _cached_host = os.getenv("HOST_STATIC_IP")
+        if _cached_host is not None:
+            logger.info(f"Using static IP: {_cached_host}")
+        else:
+            _cached_host = find_ip_by_mac(os.getenv('REMOTE_HOST_MAC'))
     return _cached_host
