@@ -9,6 +9,7 @@ import host_commands as host
 from backup import cycle_backups, BackupError
 from logger import logger
 from plug_init import PlugInitError
+from host_commands import HostError
 from telegram_bot import send_backup_result
 
 
@@ -28,6 +29,10 @@ async def main():
 
     except FileNotFoundError as e:
         logger.critical("Script directory not found", exc_info=True)
+        exit_code = 2
+
+    except HostError as e:
+        logger.critical("Unable to reach the remote host", exc_info=True)
         exit_code = 2
 
     except Exception as e:

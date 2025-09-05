@@ -10,6 +10,11 @@ from logger import logger
 plug = None
 
 
+# raised when unable to reach the host
+class HostError(Exception):
+    pass
+
+
 async def __init_host():
     global plug
     try:
@@ -46,6 +51,13 @@ async def start_host():
 
         logger.info("Waiting for host to come online...")
         await asyncio.sleep(int(os.getenv('STARTUP_TIME')))  # waiting for host startup
+
+        # check host status
+        if not is_online():
+            logger.critical(f"Unable to reach host", exc_info=True)
+            raise HostError("Unable to reach host")
+        else:
+            logger.info("Host is online")
 
     return was_online
 
