@@ -20,6 +20,7 @@ async def plug_init():
         for ip, device in devices.items():
             await device.update()
             if device.mac.lower() == os.getenv("PLUG_MAC").lower():
+                logger.debug(f"Connecting to device with IP {ip}, MAC {device.mac} and alias {device.alias}")
                 target_device = device
             else:
                 logger.debug(f"Skipping device with IP {ip}, MAC {device.mac} and alias {device.alias}")
