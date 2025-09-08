@@ -31,7 +31,11 @@ async def __turn_on():
         raise PlugInitError("Plug not initialized")
 
     try:
+        # sleep for the time indicated before completing the power cycle
+        delay = int(os.getenv("POWER_CYCLE_DELAY", 3))
+
         await plug.turn_off()
+        await asyncio.sleep(delay)
         await plug.turn_on()
         await plug.update()
 
